@@ -1,4 +1,4 @@
-package com.example.flag_quiz
+package com.yacxhub.flagquiz
 
 import io.flutter.embedding.android.FlutterActivity
 

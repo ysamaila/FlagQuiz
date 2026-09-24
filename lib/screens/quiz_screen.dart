@@ -85,9 +85,10 @@ class _QuizScreenState extends State<QuizScreen> {
         }
       },
       child: Scaffold(
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
           leading: IconButton(
-            icon: const Icon(Icons.close),
+            icon: const Icon(Icons.close_rounded),
             onPressed: () async {
               final shouldPop = await _onWillPop();
               if (shouldPop && context.mounted) {
@@ -95,25 +96,38 @@ class _QuizScreenState extends State<QuizScreen> {
               }
             },
           ),
-          title: Text('Question $currentNumber of $total'),
+          title: Text(
+            'Question $currentNumber of $total',
+            style: AppTheme.heading(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
           actions: [
             Container(
-              margin: const EdgeInsets.only(right: 16),
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              margin: const EdgeInsets.only(right: AppTheme.space16),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: AppTheme.border),
+                color: AppTheme.surfaceVariant.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: AppTheme.border.withValues(alpha: 0.8),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.star, color: AppTheme.warning, size: 16),
+                  const Icon(Icons.star_rounded,
+                      color: AppTheme.warning, size: 18),
                   const SizedBox(width: 4),
                   Text(
                     '${widget.session.score}',
-                    style: const TextStyle(
+                    style: AppTheme.heading(
                       fontWeight: FontWeight.bold,
-                      fontSize: 13,
+                      fontSize: 14,
                       color: AppTheme.textPrimary,
                     ),
                   ),
@@ -122,117 +136,127 @@ class _QuizScreenState extends State<QuizScreen> {
             ),
           ],
         ),
-        body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Linear Progress bar
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: LinearProgressIndicator(
-                    value: progress,
-                    minHeight: 6,
-                    backgroundColor: AppTheme.surfaceVariant,
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(AppTheme.primary),
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Question Prompt Area
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppTheme.surface,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: AppTheme.border),
+        body: AppBackground(
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppTheme.space24,
+                vertical: AppTheme.space16,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Linear Progress bar
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: LinearProgressIndicator(
+                      value: progress,
+                      minHeight: 6,
+                      backgroundColor: AppTheme.surfaceVariant,
+                      valueColor:
+                          const AlwaysStoppedAnimation<Color>(AppTheme.primary),
                     ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (currentQ.mode == QuizMode.flags) ...[
-                          FlagDisplay(
-                            countryCode: currentQ.country.code,
-                            width: 170,
-                            height: 110,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            currentQ.questionTitle,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: AppTheme.textPrimary,
-                            ),
-                          ),
-                        ] else ...[
-                          // Capitals Mode
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              FlagDisplay(
-                                countryCode: currentQ.country.code,
-                                width: 56,
-                                height: 38,
-                                borderRadius: 6,
-                              ),
-                              const SizedBox(width: 12),
-                              Flexible(
-                                child: Text(
-                                  currentQ.country.name,
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppTheme.textPrimary,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 14),
-                          const Text(
-                            'What is the capital city?',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: AppTheme.textSecondary,
-                            ),
+                  ),
+                  const SizedBox(height: AppTheme.space24),
+
+                  // Question Prompt Area
+                  Expanded(
+                    flex: 3,
+                    child: Container(
+                      padding: const EdgeInsets.all(AppTheme.space16),
+                      decoration: BoxDecoration(
+                        color: AppTheme.surface,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppTheme.border),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.28),
+                            blurRadius: 18,
+                            offset: const Offset(0, 8),
                           ),
                         ],
-                      ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (currentQ.mode == QuizMode.flags) ...[
+                            FlagDisplay(
+                              countryCode: currentQ.country.code,
+                              width: 175,
+                              height: 115,
+                            ),
+                            const SizedBox(height: AppTheme.space16),
+                            Text(
+                              currentQ.questionTitle,
+                              textAlign: TextAlign.center,
+                              style: AppTheme.heading(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ] else ...[
+                            // Capitals Mode
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                FlagDisplay(
+                                  countryCode: currentQ.country.code,
+                                  width: 60,
+                                  height: 40,
+                                  borderRadius: 8,
+                                ),
+                                const SizedBox(width: AppTheme.space16),
+                                Flexible(
+                                  child: Text(
+                                    currentQ.country.name,
+                                    style: AppTheme.heading(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: AppTheme.space16),
+                            Text(
+                              'What is the capital city?',
+                              textAlign: TextAlign.center,
+                              style: AppTheme.body(
+                                fontSize: 16,
+                                color: AppTheme.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
+                  const SizedBox(height: AppTheme.space24),
 
-                // Answer Options
-                Expanded(
-                  flex: 4,
-                  child: ListView.builder(
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: currentQ.options.length,
-                    itemBuilder: (context, index) {
-                      final optionText = currentQ.options[index];
-                      final isSelected = currentQ.userSelectedIndex == index;
-                      final isCorrect = currentQ.correctOptionIndex == index;
+                  // Answer Options
+                  Expanded(
+                    flex: 4,
+                    child: ListView.builder(
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: currentQ.options.length,
+                      itemBuilder: (context, index) {
+                        final optionText = currentQ.options[index];
+                        final isSelected = currentQ.userSelectedIndex == index;
+                        final isCorrect = currentQ.correctOptionIndex == index;
 
-                      return QuizOptionCard(
-                        text: optionText,
-                        index: index,
-                        isSelected: isSelected,
-                        isCorrectAnswer: isCorrect,
-                        isAnswered: currentQ.isAnswered,
-                        onTap: () => _onOptionSelected(index),
-                      );
-                    },
+                        return QuizOptionCard(
+                          text: optionText,
+                          index: index,
+                          isSelected: isSelected,
+                          isCorrectAnswer: isCorrect,
+                          isAnswered: currentQ.isAnswered,
+                          onTap: () => _onOptionSelected(index),
+                        );
+                      },
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

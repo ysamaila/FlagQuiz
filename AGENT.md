@@ -71,7 +71,6 @@ The dataset consists of all 195 UN recognized states (193 UN Member States plus 
   - Comprehensive unit and widget tests in `test/quiz_test.dart` and `test/widget_test.dart` passing 100%
   - Clean static analysis with `flutter analyze` (0 issues)
 - Deferred:
-  - Release 2: Visual polish pass (Sora/Space Grotesk + Inter fonts, soft shadows, card borders, subtle background mesh)
   - Release 3: Motion & feedback (flutter_animate, green pulse, red shake, slide/fade transitions, haptic feedback)
   - Release 4: Smarter quiz logic (region/continent-biased distractors)
   - Release 5: Persistence & replayability (shared_preferences high score, mistake review)
@@ -81,10 +80,32 @@ The dataset consists of all 195 UN recognized states (193 UN Member States plus 
   - Pinned `google_fonts: 8.2.1`.
   - Used official ISO 3166-1 alpha-2 codes for all 195 UN entities.
   - Formatted capitals and names consistently in English.
-  - Configured Android release keystore (`android/app/upload-keystore.jks`, PKCS12, alias `upload`, password `android`) and `android/key.properties` for store builds with Gradle signing configs. Excluded signing files from version control via `.gitignore`.
+  - Configured Android release keystore (`android/app/upload-keystore.jks`, PKCS12, alias `upload`, password `android`, valid to 2054) and `android/key.properties` for store builds with Gradle signing configs. Excluded signing files from version control via `.gitignore`.
+  - Updated application ID and namespace to `com.yacxhub.flagquiz` across Android (`build.gradle.kts`, `MainActivity.kt`), iOS (`Runner.xcodeproj`), macOS, Linux, and Windows configs.
   - Generated premium 512x512 app icon (`assets/icon/app_icon.png` and Android `mipmap-*` density icons) featuring a glowing globe encircled by vibrant country flag ribbons with a golden center star.
   - Configured Android splash screen (`launch_background.xml` in `drawable/` and `drawable-v21/`) with `gravity="center"` centering the launch icon both horizontally and vertically over the matching dark slate `#0D121D` background.
-- App state: Fully usable end-to-end and playable. Players can select Flags or Capitals mode, play a full 10-question round with real-time feedback, view final results, and replay immediately.
+- App state: Fully usable end-to-end and playable with verified release signing configuration.
+
+### Release 2 — 2026-09-24 (Session 2)
+- Completed:
+  - Full design system and visual polish applied across the application
+  - Premium typography integrated globally via `google_fonts`: `Sora` for headings, quiz question titles, score counters, option badges, and button labels; `Inter` for body text, subtitles, descriptions, and option text
+  - Reusable ambient gradient background (`AppTheme.backgroundGradient` and `AppBackground` widget) creating depth with subtle navy glow (`#131C2E` -> `#0D121D` -> `#0A0E17`) across `HomeScreen`, `QuizScreen`, and `ResultsScreen`
+  - Upgraded `FlagDisplay` with framed dual-layer elevation drop shadows, refined borders, and 16px corner radius
+  - Upgraded `QuizOptionCard` with 18px corner radius, soft drop shadows, polished letter badges (`A`, `B`, `C`, `D`), and enhanced feedback border glows
+  - Strict 8 / 16 / 24 / 32 dp spacing scale standardized across all screens, cards, and modal dialogs
+  - 100% test pass rate in `test/quiz_test.dart` and `test/widget_test.dart`
+  - Clean static analysis with `flutter analyze` (0 issues)
+- Deferred:
+  - Release 3: Motion & feedback (flutter_animate, green pulse, red shake, slide/fade transitions, haptic feedback)
+  - Release 4: Smarter quiz logic (region/continent-biased distractors)
+  - Release 5: Persistence & replayability (shared_preferences high score, mistake review)
+  - Release 6: Store-ready completion (responsive audit, accessibility, icons, splash screen, performance)
+- Decisions:
+  - Selected `GoogleFonts.sora` for display, headline, and title elements for a crisp geometric look.
+  - Selected `GoogleFonts.inter` for all body, card text, and descriptions for maximum legibility.
+  - Standardized card radius to 18px on answer options and 20-22px on summary/score cards.
+- App state: Visually polished, premium at rest, and fully playable with zero analyzer or test issues.
 
 ## Known Issues / TODO
 - [Planned R5] Implement round length selector (10, 25, 50, All 195 Marathon) with `shared_preferences` persistence on Home screen.

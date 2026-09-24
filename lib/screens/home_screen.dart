@@ -60,174 +60,205 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: _isLoading
-            ? const Center(
-                child: CircularProgressIndicator(color: AppTheme.primary),
-              )
-            : _errorMessage != null
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.error_outline,
-                              color: AppTheme.error, size: 48),
-                          const SizedBox(height: 16),
-                          Text(
-                            _errorMessage!,
-                            textAlign: TextAlign.center,
-                            style: const TextStyle(color: AppTheme.textPrimary),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _loadData,
-                            child: const Text('Retry'),
-                          ),
-                        ],
+      body: AppBackground(
+        child: SafeArea(
+          child: _isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(color: AppTheme.primary),
+                )
+              : _errorMessage != null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppTheme.space24),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.error_outline_rounded,
+                              color: AppTheme.error,
+                              size: 48,
+                            ),
+                            const SizedBox(height: AppTheme.space16),
+                            Text(
+                              _errorMessage!,
+                              textAlign: TextAlign.center,
+                              style: AppTheme.body(color: AppTheme.textPrimary),
+                            ),
+                            const SizedBox(height: AppTheme.space16),
+                            ElevatedButton(
+                              onPressed: _loadData,
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 20.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Spacer(),
-                        // App Logo & Title
-                        Center(
-                          child: Container(
-                            width: 72,
-                            height: 72,
-                            decoration: BoxDecoration(
-                              color: AppTheme.primary.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                  color: AppTheme.primary.withValues(alpha: 0.5),
-                                  width: 2),
-                            ),
-                            child: const Icon(
-                              Icons.flag_rounded,
-                              size: 40,
-                              color: AppTheme.primary,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        const Text(
-                          'Flag Quiz',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 32,
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.textPrimary,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Challenge yourself across all 195 UN member and observer states',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 15,
-                            color: AppTheme.textSecondary,
-                            height: 1.4,
-                          ),
-                        ),
-                        const Spacer(),
-
-                        // Mode Selector Card
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppTheme.surface,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: AppTheme.border),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'SELECT MODE',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppTheme.textMuted,
-                                  letterSpacing: 1.0,
+                    )
+                  : Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppTheme.space24,
+                        vertical: AppTheme.space24,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Spacer(),
+                          // App Logo & Title
+                          Center(
+                            child: Container(
+                              width: 76,
+                              height: 76,
+                              decoration: BoxDecoration(
+                                color: AppTheme.primary.withValues(alpha: 0.16),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppTheme.primary.withValues(alpha: 0.45),
+                                  width: 2,
                                 ),
-                              ),
-                              const SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _ModeOptionCard(
-                                      title: 'Flags',
-                                      subtitle: 'Guess by flag',
-                                      icon: Icons.public,
-                                      isSelected:
-                                          _selectedMode == QuizMode.flags,
-                                      onTap: () => setState(() =>
-                                          _selectedMode = QuizMode.flags),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _ModeOptionCard(
-                                      title: 'Capitals',
-                                      subtitle: 'Guess capital city',
-                                      icon: Icons.location_city,
-                                      isSelected:
-                                          _selectedMode == QuizMode.capitals,
-                                      onTap: () => setState(() =>
-                                          _selectedMode = QuizMode.capitals),
-                                    ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        AppTheme.primary.withValues(alpha: 0.22),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 6),
                                   ),
                                 ],
                               ),
-                            ],
+                              child: const Icon(
+                                Icons.flag_rounded,
+                                size: 42,
+                                color: AppTheme.primaryLight,
+                              ),
+                            ),
                           ),
-                        ),
-
-                        const SizedBox(height: 16),
-
-                        // Round Information Badge
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: AppTheme.surfaceVariant.withValues(alpha: 0.5),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: AppTheme.border),
+                          const SizedBox(height: AppTheme.space24),
+                          Text(
+                            'Flag Quiz',
+                            textAlign: TextAlign.center,
+                            style: AppTheme.heading(
+                              fontSize: 32,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.5,
+                            ),
                           ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _InfoItem(
+                          const SizedBox(height: AppTheme.space8),
+                          Text(
+                            'Challenge yourself across all 195 UN member and observer states',
+                            textAlign: TextAlign.center,
+                            style: AppTheme.body(
+                              fontSize: 15,
+                              color: AppTheme.textSecondary,
+                              height: 1.4,
+                            ),
+                          ),
+                          const Spacer(),
+
+                          // Mode Selector Card
+                          Container(
+                            padding: const EdgeInsets.all(AppTheme.space16),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surface,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: AppTheme.border),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'SELECT MODE',
+                                  style: AppTheme.heading(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.textMuted,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                                const SizedBox(height: AppTheme.space16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _ModeOptionCard(
+                                        title: 'Flags',
+                                        subtitle: 'Guess by flag',
+                                        icon: Icons.public_rounded,
+                                        isSelected:
+                                            _selectedMode == QuizMode.flags,
+                                        onTap: () => setState(() =>
+                                            _selectedMode = QuizMode.flags),
+                                      ),
+                                    ),
+                                    const SizedBox(width: AppTheme.space16),
+                                    Expanded(
+                                      child: _ModeOptionCard(
+                                        title: 'Capitals',
+                                        subtitle: 'Guess capital city',
+                                        icon: Icons.location_city_rounded,
+                                        isSelected:
+                                            _selectedMode == QuizMode.capitals,
+                                        onTap: () => setState(() =>
+                                            _selectedMode = QuizMode.capitals),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: AppTheme.space16),
+
+                          // Round Information Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppTheme.space16,
+                              vertical: 14,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surfaceVariant
+                                  .withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                  color:
+                                      AppTheme.border.withValues(alpha: 0.7)),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                _InfoItem(
                                   icon: Icons.quiz_outlined,
-                                  text: '10 Questions'),
-                              _InfoItem(
+                                  text: '10 Questions',
+                                ),
+                                _InfoItem(
                                   icon: Icons.timer_outlined,
-                                  text: 'Self-paced'),
-                              _InfoItem(
-                                  icon: Icons.stars_outlined,
-                                  text: '195 Nations'),
-                            ],
+                                  text: 'Self-paced',
+                                ),
+                                _InfoItem(
+                                  icon: Icons.stars_rounded,
+                                  text: '195 Nations',
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
 
-                        const Spacer(),
+                          const Spacer(),
 
-                        // Start Button
-                        ElevatedButton(
-                          onPressed: _startQuiz,
-                          child: Text('Start ${_selectedMode.displayName} Quiz'),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
+                          // Start Button
+                          ElevatedButton(
+                            onPressed: _startQuiz,
+                            child:
+                                Text('Start ${_selectedMode.displayName} Quiz'),
+                          ),
+                          const SizedBox(height: AppTheme.space16),
+                        ],
+                      ),
                     ),
-                  ),
+        ),
       ),
     );
   }
@@ -254,38 +285,51 @@ class _ModeOptionCard extends StatelessWidget {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 12,
+          vertical: AppTheme.space16,
+        ),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppTheme.primary.withValues(alpha: 0.15)
-              : AppTheme.surfaceVariant,
-          borderRadius: BorderRadius.circular(12),
+              ? AppTheme.primary.withValues(alpha: 0.16)
+              : AppTheme.surfaceVariant.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected ? AppTheme.primary : AppTheme.border,
             width: isSelected ? 2 : 1,
           ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: AppTheme.primary.withValues(alpha: 0.22),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           children: [
             Icon(
               icon,
-              color: isSelected ? AppTheme.primary : AppTheme.textSecondary,
-              size: 26,
+              color: isSelected ? AppTheme.primaryLight : AppTheme.textSecondary,
+              size: 28,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppTheme.space8),
             Text(
               title,
-              style: TextStyle(
+              style: AppTheme.heading(
                 color: isSelected ? AppTheme.textPrimary : AppTheme.textSecondary,
                 fontWeight: FontWeight.bold,
                 fontSize: 15,
+                letterSpacing: 0,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 4),
             Text(
               subtitle,
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: AppTheme.body(
                 color: isSelected ? AppTheme.textSecondary : AppTheme.textMuted,
                 fontSize: 11,
               ),
@@ -308,11 +352,11 @@ class _InfoItem extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(icon, size: 16, color: AppTheme.textSecondary),
+        Icon(icon, size: 16, color: AppTheme.primaryLight),
         const SizedBox(width: 6),
         Text(
           text,
-          style: const TextStyle(
+          style: AppTheme.body(
             color: AppTheme.textSecondary,
             fontSize: 12,
             fontWeight: FontWeight.w500,
