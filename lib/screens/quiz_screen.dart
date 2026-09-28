@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../models/quiz_question.dart';
 import '../models/quiz_session.dart';
 import '../theme/app_theme.dart';
