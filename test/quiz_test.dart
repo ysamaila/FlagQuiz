@@ -112,6 +112,10 @@ void main() {
       session.answerCurrent(wrongIndex);
       expect(q1.isCorrect, isFalse);
       expect(session.score, 1); // score remains 1
+      expect(session.mistakesCount, 1);
+      expect(session.mistakes.length, 1);
+      expect(session.mistakes.first.question, q1);
+      expect(session.mistakes.first.chosenAnswer, q1.options[wrongIndex]);
     });
   });
 }
