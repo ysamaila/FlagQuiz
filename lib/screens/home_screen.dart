@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../data/country_repository.dart';
 import '../models/quiz_question.dart';
+import '../services/preferences_service.dart';
 import '../theme/app_theme.dart';
 import 'quiz_screen.dart';
 
@@ -13,17 +15,27 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   QuizMode _selectedMode = QuizMode.flags;
+  int _questionCount = 10;
+  int _highScore = 0;
   bool _isLoading = true;
   String? _errorMessage;
+
+  static const List<int> _countOptions = [10, 25, 50, 195];
 
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadDataAndPreferences();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadDataAndPreferences() async {
     try {
+      await PreferencesService.instance.init();
+      final preferredCount =
+          PreferencesService.instance.getPreferredQuestionCount(fallback: 10);
+      _questionCount = _countOptions.contains(preferredCount) ? preferredCount : 10;
+      _updateHighScore();
+
       if (!CountryRepository.instance.isLoaded) {
         await CountryRepository.instance.loadCountries();
       }
@@ -42,19 +54,54 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void _startQuiz() {
+  void _updateHighScore() {
+    final best =
+        PreferencesService.instance.getHighScore(_selectedMode, _questionCount);
+    if (mounted) {
+      setState(() {
+        _highScore = best;
+      });
+    } else {
+      _highScore = best;
+    }
+  }
+
+  void _onCountSelected(int count) {
+    if (_questionCount == count) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _questionCount = count;
+      _updateHighScore();
+    });
+    PreferencesService.instance.setPreferredQuestionCount(count);
+  }
+
+  void _onModeSelected(QuizMode mode) {
+    if (_selectedMode == mode) return;
+    HapticFeedback.lightImpact();
+    setState(() {
+      _selectedMode = mode;
+      _updateHighScore();
+    });
+  }
+
+  Future<void> _startQuiz() async {
     if (_isLoading || _errorMessage != null) return;
+    HapticFeedback.mediumImpact();
 
     final session = CountryRepository.instance.generateQuiz(
       mode: _selectedMode,
-      questionCount: 10,
+      questionCount: _questionCount,
     );
 
-    Navigator.of(context).push(
+    await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => QuizScreen(session: session),
       ),
     );
+
+    // Refresh high score when returning to Home screen
+    _updateHighScore();
   }
 
   @override
@@ -86,27 +133,27 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(height: AppTheme.space16),
                             ElevatedButton(
-                              onPressed: _loadData,
+                              onPressed: _loadDataAndPreferences,
                               child: const Text('Retry'),
                             ),
                           ],
                         ),
                       ),
                     )
-                  : Padding(
+                  : SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(
                         horizontal: AppTheme.space24,
-                        vertical: AppTheme.space24,
+                        vertical: AppTheme.space16,
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          const Spacer(),
+                          const SizedBox(height: AppTheme.space16),
                           // App Logo & Title
                           Center(
                             child: Container(
-                              width: 76,
-                              height: 76,
+                              width: 72,
+                              height: 72,
                               decoration: BoxDecoration(
                                 color: AppTheme.primary.withValues(alpha: 0.16),
                                 shape: BoxShape.circle,
@@ -125,17 +172,17 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               child: const Icon(
                                 Icons.flag_rounded,
-                                size: 42,
+                                size: 38,
                                 color: AppTheme.primaryLight,
                               ),
                             ),
                           ),
-                          const SizedBox(height: AppTheme.space24),
+                          const SizedBox(height: AppTheme.space16),
                           Text(
                             'Flag Quiz',
                             textAlign: TextAlign.center,
                             style: AppTheme.heading(
-                              fontSize: 32,
+                              fontSize: 30,
                               fontWeight: FontWeight.bold,
                               letterSpacing: -0.5,
                             ),
@@ -145,12 +192,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             'Challenge yourself across all 195 UN member and observer states',
                             textAlign: TextAlign.center,
                             style: AppTheme.body(
-                              fontSize: 15,
+                              fontSize: 14,
                               color: AppTheme.textSecondary,
                               height: 1.4,
                             ),
                           ),
-                          const Spacer(),
+                          const SizedBox(height: AppTheme.space24),
 
                           // Mode Selector Card
                           Container(
@@ -189,8 +236,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         icon: Icons.public_rounded,
                                         isSelected:
                                             _selectedMode == QuizMode.flags,
-                                        onTap: () => setState(() =>
-                                            _selectedMode = QuizMode.flags),
+                                        onTap: () =>
+                                            _onModeSelected(QuizMode.flags),
                                       ),
                                     ),
                                     const SizedBox(width: AppTheme.space16),
@@ -201,8 +248,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         icon: Icons.location_city_rounded,
                                         isSelected:
                                             _selectedMode == QuizMode.capitals,
-                                        onTap: () => setState(() =>
-                                            _selectedMode = QuizMode.capitals),
+                                        onTap: () =>
+                                            _onModeSelected(QuizMode.capitals),
                                       ),
                                     ),
                                   ],
@@ -213,46 +260,163 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           const SizedBox(height: AppTheme.space16),
 
-                          // Round Information Badge
+                          // Question Count Selector Card
                           Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppTheme.space16,
-                              vertical: 14,
-                            ),
+                            padding: const EdgeInsets.all(AppTheme.space16),
                             decoration: BoxDecoration(
-                              color: AppTheme.surfaceVariant
-                                  .withValues(alpha: 0.5),
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                  color:
-                                      AppTheme.border.withValues(alpha: 0.7)),
+                              color: AppTheme.surface,
+                              borderRadius: BorderRadius.circular(18),
+                              border: Border.all(color: AppTheme.border),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.25),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 6),
+                                ),
+                              ],
                             ),
-                            child: const Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _InfoItem(
-                                  icon: Icons.quiz_outlined,
-                                  text: '10 Questions',
+                                Text(
+                                  'QUESTIONS PER ROUND',
+                                  style: AppTheme.heading(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppTheme.textMuted,
+                                    letterSpacing: 1.2,
+                                  ),
                                 ),
-                                _InfoItem(
-                                  icon: Icons.timer_outlined,
-                                  text: 'Self-paced',
-                                ),
-                                _InfoItem(
-                                  icon: Icons.stars_rounded,
-                                  text: '195 Nations',
+                                const SizedBox(height: 12),
+                                Row(
+                                  children: _countOptions.map((count) {
+                                    final isSelected = _questionCount == count;
+                                    final label = count == 195 ? 'All (195)' : '$count';
+                                    return Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 3),
+                                        child: InkWell(
+                                          onTap: () => _onCountSelected(count),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          child: AnimatedContainer(
+                                            duration: const Duration(
+                                                milliseconds: 180),
+                                            padding: const EdgeInsets.symmetric(
+                                                vertical: 10),
+                                            decoration: BoxDecoration(
+                                              color: isSelected
+                                                  ? AppTheme.primary
+                                                      .withValues(alpha: 0.22)
+                                                  : AppTheme.surfaceVariant
+                                                      .withValues(alpha: 0.6),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              border: Border.all(
+                                                color: isSelected
+                                                    ? AppTheme.primary
+                                                    : AppTheme.border,
+                                                width: isSelected ? 1.8 : 1,
+                                              ),
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              label,
+                                              style: AppTheme.heading(
+                                                fontSize: count == 195 ? 12 : 14,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.bold
+                                                    : FontWeight.w500,
+                                                color: isSelected
+                                                    ? AppTheme.primaryLight
+                                                    : AppTheme.textSecondary,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                                 ),
                               ],
                             ),
                           ),
 
-                          const Spacer(),
+                          const SizedBox(height: AppTheme.space16),
+
+                          // Best Score Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppTheme.space16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surfaceVariant.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                  color: AppTheme.border.withValues(alpha: 0.7)),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: _highScore > 0
+                                        ? AppTheme.warning.withValues(alpha: 0.16)
+                                        : AppTheme.surface,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Icon(
+                                    _highScore > 0
+                                        ? Icons.emoji_events_rounded
+                                        : Icons.military_tech_outlined,
+                                    size: 20,
+                                    color: _highScore > 0
+                                        ? AppTheme.warning
+                                        : AppTheme.textMuted,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Personal Best (${_selectedMode.displayName} • $_questionCount Qs)',
+                                        style: AppTheme.body(
+                                          fontSize: 11,
+                                          color: AppTheme.textMuted,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        _highScore > 0
+                                            ? '$_highScore / $_questionCount (${((_highScore / _questionCount) * 100).round()}%)'
+                                            : 'No attempts yet',
+                                        style: AppTheme.heading(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: _highScore > 0
+                                              ? AppTheme.textPrimary
+                                              : AppTheme.textSecondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: AppTheme.space24),
 
                           // Start Button
                           ElevatedButton(
                             onPressed: _startQuiz,
-                            child:
-                                Text('Start ${_selectedMode.displayName} Quiz'),
+                            child: Text(
+                                'Start ${_selectedMode.displayName} Quiz ($_questionCount Qs)'),
                           ),
                           const SizedBox(height: AppTheme.space16),
                         ],
@@ -337,32 +501,6 @@ class _ModeOptionCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _InfoItem extends StatelessWidget {
-  final IconData icon;
-  final String text;
-
-  const _InfoItem({required this.icon, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 16, color: AppTheme.primaryLight),
-        const SizedBox(width: 6),
-        Text(
-          text,
-          style: AppTheme.body(
-            color: AppTheme.textSecondary,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }
