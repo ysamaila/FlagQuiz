@@ -117,5 +117,44 @@ void main() {
       expect(session.mistakes.first.question, q1);
       expect(session.mistakes.first.chosenAnswer, q1.options[wrongIndex]);
     });
+
+    test('generateQuiz generates requested question counts: 10, 25, 50, and 195 Marathon', () {
+      final s10 = repo.generateQuiz(mode: QuizMode.flags, questionCount: 10);
+      expect(s10.totalQuestions, 10);
+
+      final s25 = repo.generateQuiz(mode: QuizMode.flags, questionCount: 25);
+      expect(s25.totalQuestions, 25);
+
+      final s50 = repo.generateQuiz(mode: QuizMode.flags, questionCount: 50);
+      expect(s50.totalQuestions, 50);
+
+      final s195 = repo.generateQuiz(mode: QuizMode.flags, questionCount: 195);
+      expect(s195.totalQuestions, 195);
+    });
+
+    test('generateQuiz biases distractors toward same continent', () {
+      final session = repo.generateQuiz(mode: QuizMode.flags, questionCount: 50);
+      int sameContinentDistractorCount = 0;
+      int totalDistractors = 0;
+
+      for (final q in session.questions) {
+        expect(q.options.length, 4);
+        expect(q.options.toSet().length, 4); // all options unique
+
+        final otherOptionNames = q.options.where((opt) => opt != q.correctAnswerText).toList();
+        for (final name in otherOptionNames) {
+          final matched = repo.countries.firstWhere((c) => c.name == name);
+          totalDistractors++;
+          if (matched.continent == q.country.continent) {
+            sameContinentDistractorCount++;
+          }
+        }
+      }
+
+      // In continents with >= 4 countries, 100% of distractors should come from the same continent.
+      // Overall across 50 questions, same-continent distractors should be heavily prioritized (>80%).
+      final ratio = sameContinentDistractorCount / totalDistractors;
+      expect(ratio, greaterThan(0.85));
+    });
   });
 }

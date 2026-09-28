@@ -43,13 +43,25 @@ class CountryRepository {
     final questions = <QuizQuestion>[];
 
     for (final target in selectedCountries) {
-      // Find 3 distinct distractors from the remaining countries
-      final distractors = _countries
-          .where((c) => c.code != target.code)
+      // Prioritize 3 distinct distractors from the same continent/region
+      final sameContinent = _countries
+          .where((c) => c.code != target.code && c.continent == target.continent)
           .toList()
         ..shuffle(rand);
 
-      final chosenDistractors = distractors.take(3).toList();
+      final chosenDistractors = <Country>[];
+      chosenDistractors.addAll(sameContinent.take(3));
+
+      // Backfill from other continents if fewer than 3 regional candidates exist
+      if (chosenDistractors.length < 3) {
+        final otherContinents = _countries
+            .where((c) =>
+                c.code != target.code && c.continent != target.continent)
+            .toList()
+          ..shuffle(rand);
+        chosenDistractors.addAll(
+            otherContinents.take(3 - chosenDistractors.length));
+      }
 
       final optionsList = <String>[];
       final String correctAnswer;
