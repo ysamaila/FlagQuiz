@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 
@@ -51,8 +52,11 @@ class QuizOptionCard extends StatelessWidget {
             offset: const Offset(0, 4),
           ),
         ];
-        trailingIcon = const Icon(Icons.check_circle_rounded,
-            color: AppTheme.success, size: 22);
+        trailingIcon = const Icon(
+          Icons.check_circle_rounded,
+          color: AppTheme.success,
+          size: 22,
+        );
       } else if (isSelected && !isCorrectAnswer) {
         cardColor = AppTheme.error.withValues(alpha: 0.16);
         borderColor = AppTheme.error;
@@ -65,8 +69,11 @@ class QuizOptionCard extends StatelessWidget {
             offset: const Offset(0, 4),
           ),
         ];
-        trailingIcon =
-            const Icon(Icons.cancel_rounded, color: AppTheme.error, size: 22);
+        trailingIcon = const Icon(
+          Icons.cancel_rounded,
+          color: AppTheme.error,
+          size: 22,
+        );
       } else {
         textColor = AppTheme.textMuted;
         badgeTextColor = AppTheme.textMuted;
@@ -77,7 +84,7 @@ class QuizOptionCard extends StatelessWidget {
     final label =
         index < _optionLabels.length ? _optionLabels[index] : '${index + 1}';
 
-    return Padding(
+    final Widget cardWidget = Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Container(
         decoration: BoxDecoration(
@@ -96,7 +103,8 @@ class QuizOptionCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 border: Border.all(
                   color: borderColor,
-                  width: isAnswered && (isCorrectAnswer || isSelected) ? 2 : 1.2,
+                  width:
+                      isAnswered && (isCorrectAnswer || isSelected) ? 2 : 1.2,
                 ),
               ),
               child: Row(
@@ -125,9 +133,10 @@ class QuizOptionCard extends StatelessWidget {
                       style: GoogleFonts.inter(
                         color: textColor,
                         fontSize: 16,
-                        fontWeight: isAnswered && (isCorrectAnswer || isSelected)
-                            ? FontWeight.w600
-                            : FontWeight.w500,
+                        fontWeight:
+                            isAnswered && (isCorrectAnswer || isSelected)
+                                ? FontWeight.w600
+                                : FontWeight.w500,
                       ),
                     ),
                   ),
@@ -139,5 +148,20 @@ class QuizOptionCard extends StatelessWidget {
         ),
       ),
     );
+
+    if (isAnswered && isCorrectAnswer) {
+      return cardWidget
+          .animate()
+          .scaleXY(
+            begin: 1.0,
+            end: 1.025,
+            duration: 250.ms,
+            curve: Curves.easeOutBack,
+          );
+    } else if (isAnswered && isSelected && !isCorrectAnswer) {
+      return cardWidget.animate().shakeX(amount: 6, duration: 300.ms);
+    }
+
+    return cardWidget;
   }
 }
