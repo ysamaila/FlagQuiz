@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 
 class FlagDisplay extends StatelessWidget {
   final String countryCode;
+  final String? countryName;
   final double width;
   final double height;
   final double borderRadius;
@@ -11,10 +12,40 @@ class FlagDisplay extends StatelessWidget {
   const FlagDisplay({
     super.key,
     required this.countryCode,
+    this.countryName,
     this.width = 160,
     this.height = 100,
     this.borderRadius = 16,
   });
+
+  Widget _buildFallback() {
+    return Container(
+      width: width,
+      height: height,
+      color: AppTheme.surfaceVariant,
+      alignment: Alignment.center,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Icons.flag_outlined,
+            size: 28,
+            color: AppTheme.textSecondary,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            countryCode.isNotEmpty ? countryCode.toUpperCase() : 'FLAG',
+            style: const TextStyle(
+              color: AppTheme.textSecondary,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+              letterSpacing: 1.0,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,14 +76,16 @@ class FlagDisplay extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(borderRadius - 1.5),
-        child: CountryFlag.fromCountryCode(
-          countryCode,
-          theme: ImageTheme(
-            width: width,
-            height: height,
-            shape: RoundedRectangle(borderRadius - 1.5),
-          ),
-        ),
+        child: countryCode.trim().length == 2
+            ? CountryFlag.fromCountryCode(
+                countryCode,
+                theme: ImageTheme(
+                  width: width,
+                  height: height,
+                  shape: RoundedRectangle(borderRadius - 1.5),
+                ),
+              )
+            : _buildFallback(),
       ),
     );
   }
