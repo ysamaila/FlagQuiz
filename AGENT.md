@@ -107,5 +107,30 @@ The dataset consists of all 195 UN recognized states (193 UN Member States plus 
   - Standardized card radius to 18px on answer options and 20-22px on summary/score cards.
 - App state: Visually polished, premium at rest, and fully playable with zero analyzer or test issues.
 
+### Combined Releases 3, 4, and 5 — 2026-09-28 (Session 3)
+- Version: `1.1.0+3`
+- Completed:
+  - Combined Release 3 (Motion & Feedback), Release 4 (Smarter Quiz Logic & Edge Cases), and Release 5 (Persistence & Replayability) into a single cohesive release
+  - Added `flutter_animate: ^4.5.2` and `shared_preferences: ^2.5.3` dependencies
+  - Built `PreferencesService` singleton managing persistent question count preference (`10`, `25`, `50`, `195 Marathon`) and granular personal best scores per `(mode, questionCount)`
+  - Added question count segmented selector on `HomeScreen` with dynamic personal best score card (`Icons.emoji_events_rounded`)
+  - Implemented regional distractor bias in `CountryRepository`: filters remaining countries by matching `continent` first (clamped up to 3 distractors) before backfilling from general pool
+  - Verified UN observer states (Vatican City `VA`, Palestine `PS`) and non-UN state exclusion (Kosovo); added graceful slate fallback rendering in `FlagDisplay`
+  - Added tactile haptics (`HapticFeedback.lightImpact()` on tap, `mediumImpact()` on reveal)
+  - Integrated `QuizOptionCard` micro-animations: green scale pulse on correct, horizontal shake on incorrect, and instant true-answer reveal glow if missed
+  - Added `AnimatedSwitcher` horizontal slide & fade transitions between questions and smooth `TweenAnimationBuilder` progress bar
+  - Built `QuizMistake` tracking in `QuizSession` recording every missed question and chosen answer
+  - Implemented `ReviewMistakesScreen` with scrollable mistake cards showing country flag/name, player's incorrect pick (`Icons.cancel_rounded` in red), and correct answer (`Icons.check_circle_rounded` in green)
+  - Polished `ResultsScreen` with animated score count-up, personal best celebration banner, and tiered performance badges using crisp Material Icons (strictly no emojis)
+  - 100% test pass rate (15/15 unit and widget tests passing across 4 test suites)
+  - Clean static analysis with `flutter analyze` (0 issues)
+- Deferred:
+  - Release 6: Store-ready completion (responsive audit, accessibility semantics, final store assets check)
+- Decisions:
+  - Strictly used Flutter Material Icons (`Icons.emoji_events`, `Icons.military_tech`, `Icons.thumb_up`, `Icons.menu_book`, `Icons.cancel_rounded`, `Icons.check_circle_rounded`) across all performance tiers and UI cards instead of text emojis.
+  - Tracked personal high scores with granular mode + round length compound keys (`high_score_${mode.name}_$questionCount`).
+- App state: Highly dynamic, tactile, intelligent quiz generation, fully persistent across launches, and mistake-reviewable.
+
 ## Known Issues / TODO
-- [Planned R5] Implement round length selector (10, 25, 50, All 195 Marathon) with `shared_preferences` persistence on Home screen.
+- [Planned R6] Responsive audit on tablet/desktop layouts and screen-reader accessibility labels.
+
